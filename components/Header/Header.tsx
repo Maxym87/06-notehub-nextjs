@@ -1,7 +1,7 @@
 import css from "./Header.module.css";
 import Link from "next/link";
 
-function Header() {
+export default function Header() {
   return (
     <header className={css.header}>
       <Link href="/" aria-label="Home">
@@ -9,7 +9,10 @@ function Header() {
       </Link>
       <nav aria-label="Main Navigation">
         <ul className={css.navigation}>
-          <Link href="/">Home</Link>
+          <li>
+            <Link href="/">Home</Link>
+          </li>
+
           <li>
             <Link href="/notes">Notes</Link>
           </li>
@@ -18,5 +21,3 @@ function Header() {
     </header>
   );
 }
-
-export default Header;
