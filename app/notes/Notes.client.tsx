@@ -1,16 +1,17 @@
 "use client";
+
 import { fetchNotes } from "@/lib/api";
-import { FetchNotesResponse } from "@/types/note";
 import { useState } from "react";
-import styles from "./NotePage.module.css";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { useDebouncedCallback } from "use-debounce";
 
 import NoteForm from "@/components/NoteForm/NoteForm";
 import NoteList from "@/components/NoteList/NoteList";
 import Modal from "@/components/Modal/Modal";
 import SearchBox from "@/components/SearchBox/SearchBox";
 import Pagination from "@/components/Pagination/Pagination";
-import { useQuery, keepPreviousData } from "@tanstack/react-query";
-import { useDebounce, useDebouncedCallback } from "use-debounce";
+
+import styles from "./NotePage.module.css";
 
 type NotesClientProps = {
   initialPage: number;
@@ -24,6 +25,7 @@ export default function NotesClient({
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [isModal, setIsModal] = useState(false);
+
   const updateSearchQuery = useDebouncedCallback(setSearchQuery, 300);
 
   const { data, isLoading, isError } = useQuery({
@@ -31,30 +33,35 @@ export default function NotesClient({
     queryFn: () => fetchNotes(currentPage, searchQuery),
     placeholderData: keepPreviousData,
   });
+
   const openModal = () => setIsModal(true);
   const closeModal = () => setIsModal(false);
 
   const totalPages = data?.totalPages ?? 0;
 
   return (
-    <>
-      <NoteList notes={data.notes} />
-      <SearchBox value={searchQuery} onSearch={updateSearchQuery} />
-      {totalPages > 1 && (
-        <Pagination
-          total={totalPages}
-          page={currentPage}
-          onChange={setCurrentPage}
-        />
-      )}
-      <button className={styles.button} onClick={openModal}>
-        Create note +
-      </button>
+    <div className={styles.app}>
+      <header className={styles.toolbar}>
+        <SearchBox value={searchQuery} onSearch={updateSearchQuery} />
+        {totalPages > 1 && (
+          <Pagination
+            total={totalPages}
+            page={currentPage}
+            onChange={setCurrentPage}
+          />
+        )}
+        <button className={styles.button} onClick={openModal}>
+          Create note +
+        </button>
+      </header>
+      {isLoading && <p className={styles.loading}>Loading notes...</p>}
+      {isError && <p className={styles.error}>Server error!</p>}
+      {data && !isLoading && <NoteList notes={data.notes} />}
       {isModal && (
         <Modal onClose={closeModal}>
           <NoteForm onCloseModal={closeModal} />
         </Modal>
       )}
-    </>
+    </div>
   );
 }

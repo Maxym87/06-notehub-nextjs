@@ -1,3 +1,5 @@
+"use client";
+
 import css from "./NoteForm.module.css";
 import { useId } from "react";
 import { Formik, Form, Field, ErrorMessage, type FormikHelpers } from "formik";
@@ -42,7 +44,7 @@ export default function NoteForm({ onCloseModal }: NoteFormProps) {
 
   const handleSubmit = (
     values: FormValues,
-    formikHelper: FormikHelpers<FormValues>
+    formikHelper: FormikHelpers<FormValues>,
   ) => {
     formikHelper.resetForm();
     mutate(values);
