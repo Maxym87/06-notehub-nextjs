@@ -25,12 +25,21 @@ export default function NotesClient({
   const [currentPage, setCurrentPage] = useState(initialPage);
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [isModal, setIsModal] = useState(false);
+  const [debounsValue, setDebounseValue] = useState("");
 
-  const updateSearchQuery = useDebouncedCallback(setSearchQuery, 300);
+  const updateSearchQuery = useDebouncedCallback((value: string) => {
+    setDebounseValue(value);
+    setCurrentPage(1);
+  });
+
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value);
+    updateSearchQuery(value);
+  };
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["notes", currentPage, searchQuery],
-    queryFn: () => fetchNotes(currentPage, searchQuery),
+    queryFn: () => fetchNotes(currentPage, debounsValue),
     placeholderData: keepPreviousData,
   });
 
@@ -42,7 +51,7 @@ export default function NotesClient({
   return (
     <div className={styles.app}>
       <header className={styles.toolbar}>
-        <SearchBox value={searchQuery} onSearch={updateSearchQuery} />
+        <SearchBox value={searchQuery} onSearch={handleSearchChange} />
         {totalPages > 1 && (
           <Pagination
             total={totalPages}
